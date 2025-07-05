@@ -2,6 +2,7 @@ body {
     font-family: Arial, sans-serif;
     text-align: center;
     padding: 20px;
+    background-color: #f5f5f5;
 }
 
 h1 {
@@ -15,17 +16,80 @@ h1 {
 input {
     padding: 8px;
     width: 200px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
 }
 
 button {
     padding: 8px 12px;
     margin-left: 5px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #45a049;
 }
 
 .weather-result {
-    margin-top: 20px;
-    border: 1px solid #ddd;
-    padding: 15px;
+    margin: 20px auto;
+    max-width: 1200px;
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.current-weather {
+    padding: 20px;
+    margin-bottom: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.current-weather img {
+    width: 64px;
+    height: 64px;
+}
+
+.forecast-weather, .history-weather {
+    margin-top: 30px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.forecast-day, .history-day {
     display: inline-block;
-    background: #f0f0f0;
+    width: 200px;
+    margin: 10px;
+    padding: 15px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.forecast-day img {
+    width: 48px;
+    height: 48px;
+}
+
+h3 {
+    color: #333;
+    margin-bottom: 20px;
+}
+
+h4 {
+    color: #666;
+    margin: 10px 0;
+}
+
+@media (max-width: 768px) {
+    .forecast-day, .history-day {
+        width: calc(100% - 30px);
+        margin: 10px 0;
+    }
 }
