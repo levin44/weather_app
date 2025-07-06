@@ -3,66 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Weather App</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Weather App</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="settings-toggle">
-        <button onclick="toggleSettings()" class="icon-button">
-            <i class="fas fa-cog"></i>
-        </button>
-    </div>
-
-    <div id="settingsPanel" class="settings-panel">
-        <h2>Settings</h2>
-        <div class="settings-group">
-            <h3>Theme</h3>
-            <div class="theme-toggle">
-                <input type="radio" id="lightTheme" name="theme" value="light">
-                <label for="lightTheme">Light</label>
-                <input type="radio" id="darkTheme" name="theme" value="dark">
-                <label for="darkTheme">Dark</label>
-            </div>
-        </div>
-        
-        <div class="settings-group">
-            <h3>Units</h3>
-            <select id="unitSystem" class="unit-select">
-                <option value="metric">Metric (°C, km/h, mm)</option>
-                <option value="imperial">Imperial (°F, mph, in)</option>
-            </select>
+    <div class="app-container">
+        <div class="settings-toggle">
+            <button onclick="toggleSettings()" class="icon-button">
+                <i class="fas fa-cog"></i>
+            </button>
         </div>
 
-        <div class="settings-group">
-            <h3>Display Options</h3>
-            <div class="checkbox-group">
-                <input type="checkbox" id="showFeelsLike" checked>
-                <label for="showFeelsLike">Show "Feels Like" Temperature</label>
+        <div id="settingsPanel" class="settings-panel">
+            <h2>Settings</h2>
+            <div class="settings-group">
+                <h3>Theme</h3>
+                <div class="theme-toggle">
+                    <input type="radio" id="lightTheme" name="theme" value="light">
+                    <label for="lightTheme">Light</label>
+                    <input type="radio" id="darkTheme" name="theme" value="dark">
+                    <label for="darkTheme">Dark</label>
+                </div>
             </div>
-            <div class="checkbox-group">
-                <input type="checkbox" id="showHumidity" checked>
-                <label for="showHumidity">Show Humidity</label>
-            </div>
-            <div class="checkbox-group">
-                <input type="checkbox" id="showWind" checked>
-                <label for="showWind">Show Wind Speed</label>
-            </div>
-            <div class="checkbox-group">
-                <input type="checkbox" id="showPrecipitation" checked>
-                <label for="showPrecipitation">Show Precipitation</label>
+            
+            <div class="settings-group">
+                <h3>Units</h3>
+                <select id="unitSystem" class="unit-select">
+                    <option value="metric">Metric (°C, km/h, mm)</option>
+                    <option value="imperial">Imperial (°F, mph, in)</option>
+                </select>
             </div>
         </div>
-    </div>
 
-    <h1>Weather App</h1>
-    <div class="search-box">
-        <input type="text" id="cityInput" placeholder="Enter city name">
-        <button onclick="getWeather()">Get Weather</button>
-    </div>
+        <header class="app-header">
+            <h1>Weather Forecast</h1>
+            <div class="search-box">
+                <input type="text" id="cityInput" placeholder="Enter city name">
+                <button onclick="getWeather()">
+                    <i class="fas fa-search"></i>
+                    Get Weather
+                </button>
+            </div>
+        </header>
 
-    <div class="weather-result" id="weatherResult">
-        <!-- Weather info will appear here -->
+        <main class="weather-container">
+            <div class="weather-result" id="weatherResult">
+          
+            </div>
+        </main>
     </div>
 
     <script src="script.js"></script>

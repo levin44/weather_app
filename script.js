@@ -3,11 +3,7 @@ const apiKey = 'cd9c006055124425aaf125754250507';
 // User preferences management
 const defaultPreferences = {
     theme: 'light',
-    unit: 'metric',
-    showFeelsLike: true,
-    showHumidity: true,
-    showWind: true,
-    showPrecipitation: true
+    unit: 'metric'
 };
 
 let userPreferences = loadPreferences();
@@ -28,12 +24,6 @@ function applyPreferences() {
 
     // Apply units
     document.getElementById('unitSystem').value = userPreferences.unit;
-
-    // Apply display options
-    document.getElementById('showFeelsLike').checked = userPreferences.showFeelsLike;
-    document.getElementById('showHumidity').checked = userPreferences.showHumidity;
-    document.getElementById('showWind').checked = userPreferences.showWind;
-    document.getElementById('showPrecipitation').checked = userPreferences.showPrecipitation;
 }
 
 // Settings panel management
@@ -62,18 +52,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (document.getElementById('weatherResult').innerHTML.trim()) {
             getWeather(); // Refresh weather display with new units
         }
-    });
-
-    // Display options
-    const displayOptions = ['showFeelsLike', 'showHumidity', 'showWind', 'showPrecipitation'];
-    displayOptions.forEach(option => {
-        document.getElementById(option).addEventListener('change', (e) => {
-            userPreferences[option] = e.target.checked;
-            savePreferences();
-            if (document.getElementById('weatherResult').innerHTML.trim()) {
-                getWeather(); // Refresh weather display with new options
-            }
-        });
     });
 });
 
@@ -123,50 +101,44 @@ function getWeather() {
     
     // Get historical weather for the past 7 days
     const today = new Date();
-    const sevenDaysAgo = new Date(today.setDate(today.getDate() - 7)).toISOString().split('T')[0];
-    const historyUrl = `https://api.weatherapi.com/v1/history.json?key=${apiKey}&q=${city}&dt=${sevenDaysAgo}`;
+    const historyPromises = [];
+    
+    // Create 7 separate calls for each day of history
+    for (let i = 1; i <= 7; i++) {
+        const historyDate = new Date(today);
+        historyDate.setDate(today.getDate() - i);
+        const dateString = historyDate.toISOString().split('T')[0];
+        const historyUrl = `https://api.weatherapi.com/v1/history.json?key=${apiKey}&q=${city}&dt=${dateString}`;
+        historyPromises.push(fetch(historyUrl).then(response => response.json()));
+    }
 
+    // Fetch both forecast and history data
     Promise.all([
         fetch(forecastUrl).then(response => response.json()),
-        fetch(historyUrl).then(response => response.json())
+        Promise.all(historyPromises)
     ])
-    .then(([forecastData, historyData]) => {
+    .then(([forecastData, historyDataArray]) => {
         showCurrentWeather(forecastData);
         showForecast(forecastData);
-        showHistory(historyData);
+        showHistory(historyDataArray);
     })
     .catch(err => alert('City not found or API Error'));
 }
 
 function showCurrentWeather(data) {
     const weatherDiv = document.getElementById('weatherResult');
-    let html = `
+    weatherDiv.innerHTML = `
         <div class="current-weather">
             <h2>${data.location.name}, ${data.location.country}</h2>
-            <p><strong>Temperature:</strong> ${formatTemperature(data.current.temp_c, userPreferences.unit)}</p>`;
-    
-    if (userPreferences.showFeelsLike) {
-        html += `<p><strong>Feels like:</strong> ${formatTemperature(data.current.feelslike_c, userPreferences.unit)}</p>`;
-    }
-    
-    html += `<p><strong>Condition:</strong> ${data.current.condition.text}</p>`;
-    
-    if (userPreferences.showHumidity) {
-        html += `<p><strong>Humidity:</strong> ${data.current.humidity}%</p>`;
-    }
-    
-    if (userPreferences.showWind) {
-        html += `<p><strong>Wind Speed:</strong> ${formatWindSpeed(data.current.wind_kph, userPreferences.unit)}</p>`;
-    }
-    
-    if (userPreferences.showPrecipitation) {
-        html += `<p><strong>Precipitation:</strong> ${formatPrecipitation(data.current.precip_mm, userPreferences.unit)}</p>`;
-    }
-    
-    html += `<img src="${data.current.condition.icon}" alt="weather icon">
-        </div>`;
-    
-    weatherDiv.innerHTML = html;
+            <p><strong>Temperature:</strong> ${formatTemperature(data.current.temp_c, userPreferences.unit)}</p>
+            <p><strong>Feels like:</strong> ${formatTemperature(data.current.feelslike_c, userPreferences.unit)}</p>
+            <p><strong>Condition:</strong> ${data.current.condition.text}</p>
+            <p><strong>Humidity:</strong> ${data.current.humidity}%</p>
+            <p><strong>Wind Speed:</strong> ${formatWindSpeed(data.current.wind_kph, userPreferences.unit)}</p>
+            <p><strong>Precipitation:</strong> ${formatPrecipitation(data.current.precip_mm, userPreferences.unit)}</p>
+            <img src="${data.current.condition.icon}" alt="weather icon">
+        </div>
+    `;
 }
 
 function showForecast(data) {
@@ -174,56 +146,57 @@ function showForecast(data) {
     forecastDiv.className = 'forecast-weather';
     forecastDiv.innerHTML = '<h3>3-Day Forecast</h3>';
 
+    const cardsContainer = document.createElement('div');
+    cardsContainer.className = 'forecast-cards-container';
+
     data.forecast.forecastday.forEach(day => {
-        let html = `
+        cardsContainer.innerHTML += `
             <div class="forecast-day">
                 <h4>${new Date(day.date).toLocaleDateString()}</h4>
                 <img src="${day.day.condition.icon}" alt="weather icon">
                 <p>Max: ${formatTemperature(day.day.maxtemp_c, userPreferences.unit)}</p>
-                <p>Min: ${formatTemperature(day.day.mintemp_c, userPreferences.unit)}</p>`;
-        
-        if (userPreferences.showWind) {
-            html += `<p>Wind: ${formatWindSpeed(day.day.maxwind_kph, userPreferences.unit)}</p>`;
-        }
-        
-        if (userPreferences.showPrecipitation) {
-            html += `<p>Precipitation: ${formatPrecipitation(day.day.totalprecip_mm, userPreferences.unit)}</p>`;
-        }
-        
-        html += `<p>${day.day.condition.text}</p>
-            </div>`;
-        
-        forecastDiv.innerHTML += html;
+                <p>Min: ${formatTemperature(day.day.mintemp_c, userPreferences.unit)}</p>
+                <p>Wind: ${formatWindSpeed(day.day.maxwind_kph, userPreferences.unit)}</p>
+                <p>Precipitation: ${formatPrecipitation(day.day.totalprecip_mm, userPreferences.unit)}</p>
+                <p>${day.day.condition.text}</p>
+            </div>
+        `;
     });
 
+    forecastDiv.appendChild(cardsContainer);
     document.getElementById('weatherResult').appendChild(forecastDiv);
 }
 
-function showHistory(data) {
+function showHistory(historyDataArray) {
     const historyDiv = document.createElement('div');
     historyDiv.className = 'history-weather';
     historyDiv.innerHTML = '<h3>Past 7 Days</h3>';
 
-    data.forecast.forecastday.forEach(day => {
-        let html = `
-            <div class="history-day">
-                <h4>${new Date(day.date).toLocaleDateString()}</h4>
-                <p>Average: ${formatTemperature(day.day.avgtemp_c, userPreferences.unit)}</p>
-                <p>Max: ${formatTemperature(day.day.maxtemp_c, userPreferences.unit)}</p>
-                <p>Min: ${formatTemperature(day.day.mintemp_c, userPreferences.unit)}</p>`;
-        
-        if (userPreferences.showWind) {
-            html += `<p>Wind: ${formatWindSpeed(day.day.maxwind_kph, userPreferences.unit)}</p>`;
-        }
-        
-        if (userPreferences.showPrecipitation) {
-            html += `<p>Precipitation: ${formatPrecipitation(day.day.totalprecip_mm, userPreferences.unit)}</p>`;
-        }
-        
-        html += `</div>`;
-        
-        historyDiv.innerHTML += html;
+    // Create container for history cards
+    const historyCardsContainer = document.createElement('div');
+    historyCardsContainer.className = 'forecast-cards-container'; // Reuse the same layout as forecast
+
+    // Sort the history data by date (newest to oldest)
+    historyDataArray.sort((a, b) => {
+        return new Date(b.forecast.forecastday[0].date) - new Date(a.forecast.forecastday[0].date);
     });
 
+    historyDataArray.forEach(data => {
+        const day = data.forecast.forecastday[0];
+        historyCardsContainer.innerHTML += `
+            <div class="history-day">
+                <h4>${new Date(day.date).toLocaleDateString()}</h4>
+                <img src="${day.day.condition.icon}" alt="weather icon">
+                <p>Average: ${formatTemperature(day.day.avgtemp_c, userPreferences.unit)}</p>
+                <p>Max: ${formatTemperature(day.day.maxtemp_c, userPreferences.unit)}</p>
+                <p>Min: ${formatTemperature(day.day.mintemp_c, userPreferences.unit)}</p>
+                <p>Wind: ${formatWindSpeed(day.day.maxwind_kph, userPreferences.unit)}</p>
+                <p>Precipitation: ${formatPrecipitation(day.day.totalprecip_mm, userPreferences.unit)}</p>
+                <p>${day.day.condition.text}</p>
+            </div>
+        `;
+    });
+
+    historyDiv.appendChild(historyCardsContainer);
     document.getElementById('weatherResult').appendChild(historyDiv);
 }
