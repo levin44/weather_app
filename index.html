@@ -5,8 +5,56 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simple Weather App</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
+    <div class="settings-toggle">
+        <button onclick="toggleSettings()" class="icon-button">
+            <i class="fas fa-cog"></i>
+        </button>
+    </div>
+
+    <div id="settingsPanel" class="settings-panel">
+        <h2>Settings</h2>
+        <div class="settings-group">
+            <h3>Theme</h3>
+            <div class="theme-toggle">
+                <input type="radio" id="lightTheme" name="theme" value="light">
+                <label for="lightTheme">Light</label>
+                <input type="radio" id="darkTheme" name="theme" value="dark">
+                <label for="darkTheme">Dark</label>
+            </div>
+        </div>
+        
+        <div class="settings-group">
+            <h3>Units</h3>
+            <select id="unitSystem" class="unit-select">
+                <option value="metric">Metric (°C, km/h, mm)</option>
+                <option value="imperial">Imperial (°F, mph, in)</option>
+            </select>
+        </div>
+
+        <div class="settings-group">
+            <h3>Display Options</h3>
+            <div class="checkbox-group">
+                <input type="checkbox" id="showFeelsLike" checked>
+                <label for="showFeelsLike">Show "Feels Like" Temperature</label>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="showHumidity" checked>
+                <label for="showHumidity">Show Humidity</label>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="showWind" checked>
+                <label for="showWind">Show Wind Speed</label>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="showPrecipitation" checked>
+                <label for="showPrecipitation">Show Precipitation</label>
+            </div>
+        </div>
+    </div>
+
     <h1>Weather App</h1>
     <div class="search-box">
         <input type="text" id="cityInput" placeholder="Enter city name">
